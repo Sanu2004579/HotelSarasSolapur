@@ -43,36 +43,12 @@ router.get('/me', protect, (req, res) => {
 router.get('/dashboard', protect, async (req, res) => {
   try {
     const Reservation = require('../models/Reservation');
-    const Subscriber = require('../models/Subscriber');
-    const Order = require('../models/Order');
 
-    const [
-      totalReservations,
-      pendingReservations,
-      confirmedReservations,
-      totalSubscribers,
-      recentReservations,
-    ] = await Promise.all([
-      Reservation.countDocuments(),
-      Reservation.countDocuments({ status: 'pending' }),
-      Reservation.countDocuments({ status: 'confirmed' }),
-      Subscriber.countDocuments({ isActive: true }),
-      Order.countDocuments(),
-Order.countDocuments({ status: 'received' }),
-      Reservation.find().sort({ createdAt: -1 }).limit(5),
-    ]);
+    const reservations = await Reservation.find().sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      data: {
-        totalReservations,
-        pendingReservations,
-        confirmedReservations,
-        totalSubscribers,
-        totalOrders: (await Order.countDocuments()),
-pendingOrders: (await Order.countDocuments({ status: 'received' })),
-        recentReservations,
-      },
+      reservations,
     });
   } catch (error) {
     console.error(error);

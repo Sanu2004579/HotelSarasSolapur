@@ -1,3 +1,10 @@
+<!-- to run server -->
+
+# 1) cd "saras-backend"
+# 2) npm start
+
+
+<!-- 
 <div align="center">
   
   ![GitHub repo size](https://img.shields.io/github/repo-size/codewithsadee/grilli)
@@ -9,9 +16,9 @@
   <br />
   <br />
 
-  <h2 align="center">Grilli - Restaurant Website</h2>
+  <h2 align="center">Hotel saras-  Restaurant Website</h2>
 
-  Grilli is a fully responsive restaurant website, <br />Responsive for all devices, build using HTML, CSS, and JavaScript.
+  Hotel saras is a fully responsive restaurant website, <br />Responsive for all devices, build using HTML, CSS, and JavaScript.
 
   <a href="https://codewithsadee.github.io/grilli/"><strong>➥ Live Demo</strong></a>
 
@@ -21,7 +28,7 @@
 
 ### Demo Screeshots
 
-![Grilli Desktop Demo](./readme-images/desktop.png "Desktop Demo")
+<!-- ![Hotel saras Desktop Demo](./readme-images/desktop.png "Desktop Demo") -->
 
 ### Prerequisites
 
@@ -51,4 +58,4 @@ If you want to contact with me you can reach me at [Twitter](https://www.twitter
 
 ### License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://choosealicense.com/licenses/mit/) -->

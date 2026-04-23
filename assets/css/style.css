@@ -3,7 +3,7 @@
 \*-----------------------------------*/
 
 /**
- * copyright 2022 codewithsadee
+
  */
 
 
@@ -2160,4 +2160,7 @@ textarea.input-field {
   box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6);
 }
 
+}
+html {
+  scroll-behavior: smooth;
 }
