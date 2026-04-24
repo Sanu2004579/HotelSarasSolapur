@@ -1,182 +1,151 @@
 'use strict';
 
-
-
-/**
- * PRELOAD
- * 
- * loading will be end after document is loaded
- */
+/* ================= PRELOADER ================= */
 
 const preloader = document.querySelector("[data-preaload]");
 
-window.addEventListener("load", function () {
-  preloader.classList.add("loaded");
-  document.body.classList.add("loaded");
-});
-
-
-
-/**
- * add event listener on multiple elements
- */
-
-const addEventOnElements = function (elements, eventType, callback) {
-  for (let i = 0, len = elements.length; i < len; i++) {
-    elements[i].addEventListener(eventType, callback);
-  }
+if (preloader) {
+  window.addEventListener("load", () => {
+    preloader.classList.add("loaded");
+    document.body.classList.add("loaded");
+  });
 }
 
+/* ================= HELPER ================= */
 
+const addEventOnElements = (elements, eventType, callback) => {
+  if (!elements) return;
+  elements.forEach(el => {
+    if (el) el.addEventListener(eventType, callback);
+  });
+};
 
-/**
- * NAVBAR
- */
+/* ================= NAVBAR ================= */
 
 const navbar = document.querySelector("[data-navbar]");
 const navTogglers = document.querySelectorAll("[data-nav-toggler]");
 const overlay = document.querySelector("[data-overlay]");
 
-const toggleNavbar = function () {
-  navbar.classList.toggle("active");
-  overlay.classList.toggle("active");
-  document.body.classList.toggle("nav-active");
+if (navbar && overlay && navTogglers.length > 0) {
+
+  const toggleNavbar = () => {
+    navbar.classList.toggle("active");
+    overlay.classList.toggle("active");
+    document.body.classList.toggle("nav-active");
+  };
+
+  addEventOnElements(navTogglers, "click", toggleNavbar);
 }
 
-addEventOnElements(navTogglers, "click", toggleNavbar);
-
-
-
-/**
- * HEADER & BACK TOP BTN
- */
+/* ================= HEADER (SCROLL EFFECT) ================= */
 
 const header = document.querySelector("[data-header]");
 const backTopBtn = document.querySelector("[data-back-top-btn]");
 
-let lastScrollPos = 0;
+if (header) {
 
-const hideHeader = function () {
-  const isScrollBottom = lastScrollPos < window.scrollY;
-  if (isScrollBottom) {
-    header.classList.add("hide");
-  } else {
-    header.classList.remove("hide");
-  }
+  let lastScrollPos = 0;
 
-  lastScrollPos = window.scrollY;
+  const hideHeader = () => {
+    const isScrollingDown = window.scrollY > lastScrollPos;
+
+    if (isScrollingDown) {
+      header.classList.add("hide");
+    } else {
+      header.classList.remove("hide");
+    }
+
+    lastScrollPos = window.scrollY;
+  };
+
+  window.addEventListener("scroll", () => {
+
+    if (window.scrollY >= 50) {
+      header.classList.add("active");
+
+      if (backTopBtn) {
+        backTopBtn.classList.add("active");
+      }
+
+      hideHeader();
+
+    } else {
+      header.classList.remove("active");
+
+      if (backTopBtn) {
+        backTopBtn.classList.remove("active");
+      }
+    }
+
+  });
 }
 
-window.addEventListener("scroll", function () {
-  if (window.scrollY >= 50) {
-    header.classList.add("active");
-    backTopBtn.classList.add("active");
-    hideHeader();
-  } else {
-    header.classList.remove("active");
-    backTopBtn.classList.remove("active");
-  }
-});
-
-
-
-/**
- * HERO SLIDER
- */
+/* ================= HERO SLIDER ================= */
 
 const heroSlider = document.querySelector("[data-hero-slider]");
 const heroSliderItems = document.querySelectorAll("[data-hero-slider-item]");
-const heroSliderPrevBtn = document.querySelector("[data-prev-btn]");
-const heroSliderNextBtn = document.querySelector("[data-next-btn]");
+const prevBtn = document.querySelector("[data-prev-btn]");
+const nextBtn = document.querySelector("[data-next-btn]");
 
-let currentSlidePos = 0;
-let lastActiveSliderItem = heroSliderItems[0];
+if (heroSlider && heroSliderItems.length > 0 && prevBtn && nextBtn) {
 
-const updateSliderPos = function () {
-  lastActiveSliderItem.classList.remove("active");
-  heroSliderItems[currentSlidePos].classList.add("active");
-  lastActiveSliderItem = heroSliderItems[currentSlidePos];
+  let currentSlide = 0;
+  let lastActive = heroSliderItems[0];
+
+  const updateSlider = () => {
+    lastActive.classList.remove("active");
+    heroSliderItems[currentSlide].classList.add("active");
+    lastActive = heroSliderItems[currentSlide];
+  };
+
+  const nextSlide = () => {
+    currentSlide = (currentSlide + 1) % heroSliderItems.length;
+    updateSlider();
+  };
+
+  const prevSlide = () => {
+    currentSlide = (currentSlide - 1 + heroSliderItems.length) % heroSliderItems.length;
+    updateSlider();
+  };
+
+  nextBtn.addEventListener("click", nextSlide);
+  prevBtn.addEventListener("click", prevSlide);
+
+  /* AUTO SLIDE */
+  let autoSlideInterval;
+
+  const startAutoSlide = () => {
+    autoSlideInterval = setInterval(nextSlide, 7000);
+  };
+
+  const stopAutoSlide = () => {
+    clearInterval(autoSlideInterval);
+  };
+
+  addEventOnElements([nextBtn, prevBtn], "mouseover", stopAutoSlide);
+  addEventOnElements([nextBtn, prevBtn], "mouseout", startAutoSlide);
+
+  window.addEventListener("load", startAutoSlide);
 }
 
-const slideNext = function () {
-  if (currentSlidePos >= heroSliderItems.length - 1) {
-    currentSlidePos = 0;
-  } else {
-    currentSlidePos++;
-  }
-
-  updateSliderPos();
-}
-
-heroSliderNextBtn.addEventListener("click", slideNext);
-
-const slidePrev = function () {
-  if (currentSlidePos <= 0) {
-    currentSlidePos = heroSliderItems.length - 1;
-  } else {
-    currentSlidePos--;
-  }
-
-  updateSliderPos();
-}
-
-heroSliderPrevBtn.addEventListener("click", slidePrev);
-
-/**
- * auto slide
- */
-
-let autoSlideInterval;
-
-const autoSlide = function () {
-  autoSlideInterval = setInterval(function () {
-    slideNext();
-  }, 7000);
-}
-
-addEventOnElements([heroSliderNextBtn, heroSliderPrevBtn], "mouseover", function () {
-  clearInterval(autoSlideInterval);
-});
-
-addEventOnElements([heroSliderNextBtn, heroSliderPrevBtn], "mouseout", autoSlide);
-
-window.addEventListener("load", autoSlide);
-
-
-
-/**
- * PARALLAX EFFECT
- */
+/* ================= PARALLAX ================= */
 
 const parallaxItems = document.querySelectorAll("[data-parallax-item]");
 
-let x, y;
+if (parallaxItems.length > 0) {
 
-window.addEventListener("mousemove", function (event) {
+  window.addEventListener("mousemove", (event) => {
 
-  x = (event.clientX / window.innerWidth * 10) - 5;
-  y = (event.clientY / window.innerHeight * 10) - 5;
+    let x = (event.clientX / window.innerWidth * 10) - 5;
+    let y = (event.clientY / window.innerHeight * 10) - 5;
 
-  // reverse the number eg. 20 -> -20, -5 -> 5
-  x = x - (x * 2);
-  y = y - (y * 2);
+    x *= -1;
+    y *= -1;
 
-  for (let i = 0, len = parallaxItems.length; i < len; i++) {
-    x = x * Number(parallaxItems[i].dataset.parallaxSpeed);
-    y = y * Number(parallaxItems[i].dataset.parallaxSpeed);
-    parallaxItems[i].style.transform = `translate3d(${x}px, ${y}px, 0px)`;
-  }
-
-});
-
-// Enable 'Pay Now' button after 'Continue to Payment' is clicked
-document.addEventListener("DOMContentLoaded", () => {
-  const continueToPaymentBtn = document.getElementById("continue-to-payment");
-  const payNowBtn = document.getElementById("pay-now-btn");
-
-  if (continueToPaymentBtn && payNowBtn) {
-    continueToPaymentBtn.addEventListener("click", () => {
-      payNowBtn.disabled = false;
+    parallaxItems.forEach(item => {
+      const speed = item.dataset.parallaxSpeed || 1;
+      item.style.transform = `translate3d(${x * speed}px, ${y * speed}px, 0px)`;
     });
-  }
-});
+
+  });
+}
