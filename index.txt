@@ -1,6 +1,6 @@
-Grilli - Amazing & Delicious Food
+Hotelsaras - Amazing & Delicious Food
 
-This is a Restaurant html template made by codewithsadee
+This is a Restaurant html template made by kalpesh and team
 
 
 
@@ -22,7 +22,7 @@ booking@restaurant.com
 
 #---------- HEADER ----------#
 
-alt = Grilli - Home
+alt = HotelSaras - Home
 
 aria-label = close menu
 <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
@@ -35,12 +35,11 @@ Contact
 
 Visit Us
 
-Restaurant St, Delicious City,
-London 9578, UK
+
 
 Open: 9.30 am - 2.30pm
 
-booking@grilli.com
+booking@hotelsarsa.com
 
 Booking Request
 +88-123-123456

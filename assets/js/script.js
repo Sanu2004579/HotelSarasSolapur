@@ -168,3 +168,15 @@ window.addEventListener("mousemove", function (event) {
   }
 
 });
+
+// Enable 'Pay Now' button after 'Continue to Payment' is clicked
+document.addEventListener("DOMContentLoaded", () => {
+  const continueToPaymentBtn = document.getElementById("continue-to-payment");
+  const payNowBtn = document.getElementById("pay-now-btn");
+
+  if (continueToPaymentBtn && payNowBtn) {
+    continueToPaymentBtn.addEventListener("click", () => {
+      payNowBtn.disabled = false;
+    });
+  }
+});

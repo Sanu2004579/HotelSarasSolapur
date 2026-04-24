@@ -6,7 +6,7 @@
 
     #saras-chat-btn {
       position: fixed; bottom: 30px; left: 30px;
-      width: 60px; height: 60px;
+      width: 80px; height: 80px;
       background: linear-gradient(135deg, #c9a96e, #a07840);
       border-radius: 50%; display: flex; align-items: center;
       justify-content: center; cursor: pointer; z-index: 9998;
@@ -30,7 +30,7 @@
 
     #saras-chat-window {
       position: fixed; bottom: 100px; left: 30px;
-      width: 360px; height: 520px;
+      width: 420px; height: 580px;
       background: #0d0d0d; border: 1px solid #2a2a2a;
       border-top: 2px solid #c9a96e; border-radius: 16px;
       display: none; flex-direction: column; z-index: 9999;
@@ -122,7 +122,7 @@
         <path d="M15,10 Q10,10 10,15 L10,60 Q10,65 15,65 L35,65 L50,82 L65,65 L85,65 Q90,65 90,60 L90,15 Q90,10 85,10 Z"
           fill="#111" stroke="#c9a96e" stroke-width="3"/>
         <text x="50" y="48" font-family="Georgia,serif" font-size="38" font-weight="bold"
-          fill="#c9a96e" text-anchor="middle" dominant-baseline="middle">S</text>
+          fill="#c9a96e" text-anchor="middle" dominant-baseline="middle">🤖</text>
       </svg>
     </button>
     <div id="saras-chat-window">
@@ -251,7 +251,7 @@ Or call us directly: <b>+8010476915</b> 😊`;
     const m = document.getElementById('saras-chat-messages');
     const div = document.createElement('div');
     div.className = 'msg bot';
-    div.innerHTML = `<div class="msg-avatar">S</div><div class="msg-bubble">${text}</div>`;
+    div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble">${text}</div>`;
     m.appendChild(div);
     m.scrollTop = m.scrollHeight;
   }
