@@ -11,7 +11,24 @@ router.post('/', async (req, res) => {
     if (!name || !phone || !tableNumber || !date || !time || !items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'Please fill all required fields and select at least one item.' });
     }
+     // Check if table already booked on same date
+const bookingDate = new Date(date);
+const startOfDay = new Date(bookingDate.setHours(0, 0, 0, 0));
+const endOfDay = new Date(bookingDate.setHours(23, 59, 59, 999));
 
+const existingOrder = await Order.findOne({
+  tableNumber,
+  date: { $gte: startOfDay, $lte: endOfDay },
+  status: { $nin: ['cancelled'] },
+});
+
+if (existingOrder) {
+  return res.status(400).json({
+    success: false,
+    tableBooked: true,
+    message: `Table ${tableNumber} is already booked on this date by ${existingOrder.name}. Please choose a different table or date!`,
+  });
+}
     const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const order = await Order.create({

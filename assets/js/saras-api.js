@@ -230,6 +230,14 @@ window.confirmOrder = async function(items, totalAmount) {
     });
 
     const data = await res.json();
+
+    // ── Table already booked! ──────────────────────────────
+    if (!data.success && data.tableBooked) {
+      document.getElementById('saras-payment-popup').remove();
+      showTableBookedPopup(data.message, currentBookingData.tableNumber);
+      return;
+    }
+
     document.getElementById('saras-payment-popup').remove();
 
     if (data.success) {
@@ -242,7 +250,58 @@ window.confirmOrder = async function(items, totalAmount) {
     showToast('Cannot connect to server. Please call +8010476915', 'error');
   }
 };
+// ── Table Already Booked Popup ────────────────────────────────
+function showTableBookedPopup(message, tableNumber) {
+  const existing = document.getElementById('saras-table-booked-popup');
+  if (existing) existing.remove();
 
+  const popup = document.createElement('div');
+  popup.id = 'saras-table-booked-popup';
+  popup.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); z-index: 999999;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+  `;
+
+  popup.innerHTML = `
+    <div style="
+      background: #111; border: 1px solid #e05252;
+      border-top: 3px solid #e05252; border-radius: 16px;
+      padding: 40px 32px; max-width: 420px; width: 90%;
+      text-align: center; position: relative;
+    ">
+      <div style="font-size: 60px; margin-bottom: 16px;">🚫</div>
+
+      <h2 style="color:#e05252; font-size:22px; font-family:'Forum',serif;
+        letter-spacing:2px; margin-bottom:12px;">
+        Table ${tableNumber} Already Booked!
+      </h2>
+
+      <p style="color:#ccc; font-size:14px; line-height:1.7; margin-bottom:24px;">
+        ${message}
+      </p>
+
+      <div style="background:#1a1a1a; border:1px solid #2a2a2a; border-radius:8px;
+        padding:16px; margin-bottom:24px;">
+        <p style="color:#888; font-size:12px; margin-bottom:8px;">Please try:</p>
+        <p style="color:#c9a96e; font-size:14px;">
+          📅 Choose a different <strong>date</strong><br>
+          🪑 Choose a different <strong>table number</strong>
+        </p>
+      </div>
+
+      <button onclick="document.getElementById('saras-table-booked-popup').remove()" style="
+        width:100%; background:linear-gradient(135deg,#c9a96e,#a07840);
+        color:#111; border:none; border-radius:8px; padding:14px;
+        font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700;
+        cursor:pointer; letter-spacing:1px;
+      ">← Choose Different Table</button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+}
 // ── Reservation Form ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
 
