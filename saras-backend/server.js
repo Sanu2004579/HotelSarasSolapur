@@ -6,14 +6,12 @@ const paymentRoutes = require("./routes/paymentRoutes");
 const orderRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/admin");
 const reservationRoutes = require("./routes/reservations");
-const userRoutes = require("./routes/users");
-const createAdmin = require("./createAdmin");
+const userRoutes = require("./routes/user");
 
 const app = express();
 
 // Connect to MongoDB
 connectDB();
-createAdmin(); // Ensure admin exists on startup
 
 // Middleware
 app.use(cors()); // allow frontend to talk to backend
