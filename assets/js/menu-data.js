@@ -1,382 +1,9 @@
-saras chatbot 
-
-document.addEventListener("DOMContentLoaded", function () {
-  const style = document.createElement('style');
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Forum&family=DM+Sans:wght@300;400;500;600&display=swap');
-
-    #saras-chat-btn {
-      position: fixed; bottom: 30px; left: 30px;
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; z-index: 9998;
-      box-shadow: 0 4px 20px rgba(201,169,110,0.4);
-      transition: transform 0.3s, box-shadow 0.3s; border: none;
-    }
-    #saras-chat-btn:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 28px rgba(201,169,110,0.6);
-    }
-
-    #saras-chat-bubble {
-      position: fixed; bottom: 100px; left: 30px;
-      background: #c9a96e; color: #111;
-      padding: 8px 14px; border-radius: 20px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 600;
-      z-index: 9997; white-space: nowrap;
-    }
-
-    #saras-chat-window {
-      position: fixed; bottom: 100px; left: 30px;
-      width: 420px; height: 580px;
-      background: #0d0d0d;
-      border: 1px solid #2a2a2a;
-      border-top: 2px solid #c9a96e;
-      border-radius: 16px;
-      display: none;
-      flex-direction: column;
-      z-index: 9999;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      overflow: hidden;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    #saras-chat-window.open {
-      display: flex;
-    }
-
-    .chat-header {
-      background: linear-gradient(135deg, #141414, #1a1a1a);
-      padding: 16px 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid #222;
-    }
-
-    .chat-avatar {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Forum', serif;
-      font-size: 18px;
-      color: #111;
-      font-weight: bold;
-    }
-
-    .chat-header-name {
-      color: #c9a96e;
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .chat-header-status {
-      color: #4caf7d;
-      font-size: 11px;
-    }
-
-    .chat-close {
-      margin-left: auto;
-      background: none;
-      border: none;
-      color: #666;
-      cursor: pointer;
-      font-size: 20px;
-    }
-
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .msg {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    .msg.user {
-      flex-direction: row-reverse;
-    }
-
-    .msg-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .msg.bot .msg-avatar {
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      color: #111;
-    }
-
-    .msg.user .msg-avatar {
-      background: #222;
-      color: #c9a96e;
-    }
-
-    .msg-bubble {
-      max-width: 78%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 13.5px;
-      line-height: 1.6;
-    }
-
-    .msg.bot .msg-bubble {
-      background: #1a1a1a;
-      color: #e0e0e0;
-      border: 1px solid #2a2a2a;
-    }
-
-    .msg.user .msg-bubble {
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      color: #111;
-    }
-
-    .quick-btns {
-      padding: 8px 16px 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .quick-btn {
-      background: #1a1a1a;
-      border: 1px solid #c9a96e;
-      color: #c9a96e;
-      padding: 6px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .chat-input-row {
-      padding: 12px 16px;
-      border-top: 1px solid #1a1a1a;
-      display: flex;
-      gap: 8px;
-    }
-
-    .chat-input {
-      flex: 1;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 24px;
-      padding: 10px 16px;
-      color: white;
-    }
-
-    .chat-send {
-      width: 38px;
-      height: 38px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #c9a96e, #a07840);
-      cursor: pointer;
-    }
-  `;
-  document.head.appendChild(style);
-
-  const html = `
-    <div id="saras-chat-bubble">👋 Ask me anything!</div>
-    <button id="saras-chat-btn" aria-label="Open chat">🤖</button>
-
-    <div id="saras-chat-window">
-      <div class="chat-header">
-        <div class="chat-avatar">S</div>
-        <div>
-          <div class="chat-header-name">Saras Assistant</div>
-          <div class="chat-header-status">● Online</div>
-        </div>
-        <button class="chat-close" id="saras-chat-close">✕</button>
-      </div>
-
-      <div class="chat-messages" id="saras-chat-messages"></div>
-
-      <div class="quick-btns" id="saras-quick-btns">
-        <button class="quick-btn" onclick="sarasAsk('menu')">📋 Menu</button>
-        <button class="quick-btn" onclick="sarasAsk('hours')">🕐 Hours</button>
-        <button class="quick-btn" onclick="sarasAsk('booking')">📅 Booking</button>
-        <button class="quick-btn" onclick="sarasAsk('location')">📍 Location</button>
-      </div>
-
-      <div class="chat-input-row">
-        <input class="chat-input" id="saras-chat-input" placeholder="Type your question..." />
-        <button class="chat-send" id="saras-chat-send">➤</button>
-      </div>
-    </div>
-  `;
-
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = html;
-  document.body.appendChild(wrapper);
-
-  console.log("SARAS MENU:", typeof SARAS_MENU);
-  console.log("CHATBOT ENGINE:", typeof SarasChatbotEngine);
-
-  if (typeof SARAS_MENU === "undefined") {
-    console.error("SARAS_MENU failed to load. Check menu-data.js");
-    return;
-  }
-
-  if (typeof SarasChatbotEngine === "undefined") {
-    console.error("SarasChatbotEngine failed to load. Check chatbot-engine.js");
-    return;
-  }
-
-  const sarasEngine = new SarasChatbotEngine();
-
-
-  function addBot(text) {
-    const m = document.getElementById('saras-chat-messages');
-    const div = document.createElement('div');
-    div.className = 'msg bot';
-    div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble">${text}</div>`;
-    m.appendChild(div);
-    m.scrollTop = m.scrollHeight;
-  }
-
-  function addUser(text) {
-    const m = document.getElementById('saras-chat-messages');
-    const div = document.createElement('div');
-    div.className = 'msg user';
-    div.innerHTML = `<div class="msg-avatar">👤</div><div class="msg-bubble">${text}</div>`;
-    m.appendChild(div);
-    m.scrollTop = m.scrollHeight;
-  }
-
-  function addTypingIndicator() {
-    const m = document.getElementById('saras-chat-messages');
-    const div = document.createElement('div');
-    div.className = 'msg bot';
-    div.id = 'typing-indicator';
-    div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble">Typing...</div>`;
-    m.appendChild(div);
-    m.scrollTop = m.scrollHeight;
-  }
-
-  function removeTypingIndicator() {
-    const typing = document.getElementById('typing-indicator');
-    if (typing) typing.remove();
-  }
-
-  function updateQuickReplies(replies) {
-    const quickBtns = document.getElementById('saras-quick-btns');
-    if (!quickBtns || !replies.length) return;
-
-    quickBtns.innerHTML = '';
-
-    replies.forEach(reply => {
-      const btn = document.createElement('button');
-      btn.className = 'quick-btn';
-      btn.textContent = reply;
-      btn.onclick = () => sarasAsk(reply);
-      quickBtns.appendChild(btn);
-    });
-  }
-
-  async function respond(userText) {
-    if (!userText.trim()) return;
-
-    addUser(userText);
-    document.getElementById('saras-chat-input').value = '';
-
-    addTypingIndicator();
-
-    const response = await sarasEngine.getResponse(userText);
-
-    removeTypingIndicator();
-
-    addBot(response.text);
-    updateQuickReplies(response.suggestions || []);
-  }
-
-  window.sarasAsk = function (topic) {
-    const labels = {
-      menu: 'What is your menu?',
-      hours: 'What are your opening hours?',
-      booking: 'How do I book a table?',
-      location: 'Where are you located?',
-      special: 'What is your special dish?',
-      contact: 'How can I contact you?',
-      prices: 'What are your prices?',
-      whatsapp: 'How can I contact on WhatsApp?'
-    };
-
-    respond(labels[topic] || topic);
-  };
-
-  let isOpen = false;
-
-function toggleChat() {
-  console.log("Chat toggled");
-
-  const win = document.getElementById('saras-chat-window');
-  const bubble = document.getElementById('saras-chat-bubble');
-
-  if (isOpen) {
-    win.classList.remove('open');
-    bubble.style.display = 'block';
-  } else {
-    win.classList.add('open');
-    bubble.style.display = 'none';
-
-    const msgs = document.getElementById('saras-chat-messages');
-
-    if (msgs.children.length === 0) {
-      sarasEngine.initialize();
-      const welcome = sarasEngine.conversationHistory[0];
-      addBot(welcome.content);
-      updateQuickReplies(welcome.suggestedReplies || []);
-    }
-  }
-
-  isOpen = !isOpen; // Toggle the state
-}
-
-document.getElementById('saras-chat-btn').addEventListener('click', toggleChat);
-document.getElementById('saras-chat-close').addEventListener('click', toggleChat);
-
-document.getElementById('saras-chat-send').addEventListener('click', () => {
-  respond(document.getElementById('saras-chat-input').value.trim());
-});
-
-document.getElementById('saras-chat-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    respond(document.getElementById('saras-chat-input').value.trim());
-  }
-});
-});
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-menu data
-
 // ═══════════════════════════════════════════════════════════════════════════
 //  menu-data.js — Complete Saras Restaurant Menu Database
-//  Used by: chatbot-engine.js for intelligent menu responses
+//  Version: 2.0 - Fixed with Family Feast and proper structure
 // ═══════════════════════════════════════════════════════════════════════════
 
 const SARAS_MENU = {
-  
-  // ─────────────────────────────────────────────────────────────────────
-  //  VEGETARIAN MENU
-  // ─────────────────────────────────────────────────────────────────────
   
   vegetarian: {
     starters: [
@@ -1012,10 +639,6 @@ const SARAS_MENU = {
     ]
   },
 
-  // ─────────────────────────────────────────────────────────────────────
-  //  NON-VEGETARIAN MENU
-  // ─────────────────────────────────────────────────────────────────────
-
   nonVegetarian: {
     starters: [
       {
@@ -1358,10 +981,6 @@ const SARAS_MENU = {
     ]
   },
 
-  // ─────────────────────────────────────────────────────────────────────
-  //  BEVERAGES & DESSERTS
-  // ─────────────────────────────────────────────────────────────────────
-
   beveragesAndDesserts: [
     {
       id: 'bev_001',
@@ -1492,48 +1111,142 @@ const SARAS_MENU = {
       isKidFriendly: true
     }
   ],
-  
-  // ─────────────────────────────────────────────────────────────────────
-  //  FAMILY FEAST SPECIAL
-  // ─────────────────────────────────────────────────────────────────────
 
-  familyFeast: {
-    items: [
-      {
-        id: 'ff_001',
-        name: 'Family Feast Platter',
-        price: 1200,
-        description: 'A grand platter with a mix of vegetarian and non-vegetarian dishes, perfect for a family of 4-6.',
-        ingredients: ['Paneer Tikka', 'Chicken Tandoori', 'Biryani', 'Naan', 'Desserts'],
-        taste: 'Rich and flavorful',
-        spiceLevel: 3,
-        cuisineType: 'Indian',
-        pairingWith: ['Soft Drinks', 'Mocktails'],
-        vegNonVeg: 'Mixed',
-        userFriendly: 'A complete meal for the whole family',
-        category: 'Specials',
-        menuCategory: 'Family Feast'
-      },
-      {
-        id: 'ff_002',
-        name: 'Kids Delight Combo',
-        price: 800,
-        description: 'A delightful combo for kids with mild flavors and fun treats.',
-        ingredients: ['Mini Burgers', 'French Fries', 'Ice Cream'],
-        taste: 'Mild and sweet',
-        spiceLevel: 1,
-        cuisineType: 'Fusion',
-        pairingWith: ['Juices', 'Milkshakes'],
-        vegNonVeg: 'Veg',
-        userFriendly: 'Perfect for kids with a sweet tooth',
-        category: 'Specials',
-        menuCategory: 'Family Feast'
-      }
-    ]
-  }
+  familyFeast: [
+    {
+      id: 'ff_001',
+      name: '1) Family Feast Combo (4 People)',
+      price: 1200,
+      description: 'Grand platter perfect for family of 4-5 with variety of veg & non-veg options',
+      components: [
+        'Paneer Butter Masala',
+        'Chicken Tandoori (Half)',
+        'Chicken Biryani',
+        'Garlic Naan (2)',
+        'Plain Rice',
+        'Mixed Salad',
+        'Jeera Soda (2)',
+        'Ice Cream (2)'
+      ],
+      ingredients: ['Paneer', 'Chicken', 'Rice', 'Naan', 'Vegetables', 'Spices'],
+      taste: 'Rich and flavorful',
+      spiceLevel: 2,
+      cuisineType: 'Indian Mix',
+      pairingWith: ['Soft Drinks', 'Mocktails'],
+      vegNonVeg: 'Mixed',
+      userFriendly: 'Complete family meal — one-stop solution',
+      category: 'Special Combo',
+      menuCategory: 'Family Feast',
+      isPremium: true
+    },
+    {
+      id: 'ff_002',
+      name: '2) Vegetarian Family Pack (4 People)',
+      price: 900,
+      description: 'Complete vegetarian meal for family of 4 with all essentials',
+      components: [
+        'Paneer Butter Masala',
+        'Veg Kolhapuri',
+        'Veg Pulav',
+        'Butter Roti (3)',
+        'Salad',
+        'Raita',
+        'Jeera Soda (2)',
+        'Gulab Jamun (2)'
+      ],
+      ingredients: ['Paneer', 'Vegetables', 'Rice', 'Roti', 'Spices'],
+      taste: 'Mild to medium spiced',
+      spiceLevel: 2,
+      cuisineType: 'Indian Vegetarian',
+      pairingWith: ['Soft Drinks'],
+      vegNonVeg: 'Veg',
+      userFriendly: 'Perfect vegetarian family meal',
+      category: 'Special Combo',
+      menuCategory: 'Family Feast'
+    },
+    {
+      id: 'ff_003',
+      name: '3) Non-Veg Biryani Feast (4 People)',
+      price: 1100,
+      description: 'Biryani lover special with multiple biryani options',
+      components: [
+        'Chicken Biryani',
+        'Mutton Biryani',
+        'Raita (2)',
+        'Pickle',
+        'Salad',
+        'Shorba',
+        'Lime Soda (2)',
+        'Gulab Jamun (2)'
+      ],
+      ingredients: ['Basmati Rice', 'Chicken', 'Mutton', 'Spices', 'Yogurt'],
+      taste: 'Aromatic and rich',
+      spiceLevel: 2,
+      cuisineType: 'Hyderabadi',
+      pairingWith: ['Raita', 'Pickles'],
+      vegNonVeg: 'Non-Veg',
+      userFriendly: 'Biryani special — double biryani combo',
+      category: 'Special Combo',
+      menuCategory: 'Family Feast',
+      isPremium: true
+    },
+    {
+      id: 'ff_004',
+      name: '4) Kids Delight Combo (Family)',
+      price: 800,
+      description: 'Kid-friendly meal with mild flavors and fun treats',
+      components: [
+        'Paneer Pakoda',
+        'Chicken Nuggets',
+        'Butter Roti (2)',
+        'Plain Rice',
+        'Salad',
+        'Curd',
+        'Milk Shake (2)',
+        'Chocolate Ice Cream (2)'
+      ],
+      ingredients: ['Paneer', 'Chicken', 'Bread', 'Rice', 'Milk'],
+      taste: 'Mild and sweet',
+      spiceLevel: 1,
+      cuisineType: 'Family Friendly',
+      pairingWith: ['Milk Shakes', 'Juices'],
+      vegNonVeg: 'Mixed',
+      userFriendly: 'Perfect for kids — mild and tasty',
+      category: 'Special Combo',
+      menuCategory: 'Family Feast',
+      isKidFriendly: true
+    },
+    {
+      id: 'ff_005',
+      name: '5) Maharashtrian Special Feast (4 People)',
+      price: 950,
+      description: 'Authentic Maharashtrian traditional meal for family',
+      components: [
+        'Veg Kolhapuri',
+        'Mutton Curry',
+        'Jowar Bhakri (4)',
+        'Plain Rice',
+        'Salad',
+        'Curd',
+        'Thecha',
+        'Jeera Soda (2)',
+        'Dessert'
+      ],
+      ingredients: ['Vegetables', 'Mutton', 'Jowar', 'Spices', 'Oil'],
+      taste: 'Spicy and traditional',
+      spiceLevel: 3,
+      cuisineType: 'Maharashtrian',
+      pairingWith: ['Bhakri', 'Rice'],
+      vegNonVeg: 'Mixed',
+      userFriendly: 'Authentic Maharashtrian — traditional feast',
+      category: 'Special Combo',
+      menuCategory: 'Family Feast',
+      isMaharashtrianSpecial: true
+    }
+  ]
 };
 
-// Ensure SARAS_MENU is globally accessible in both environments
+// Export for both browser and Node.js environments
 if (typeof window !== 'undefined') {
   window.SARAS_MENU = SARAS_MENU;
 }
@@ -1541,445 +1254,3 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = SARAS_MENU;
 }
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Saras Restaurant Premium AI Chatbot Engine
-// Local Menu Intelligence + AI API Fallback
-// ═══════════════════════════════════════════════════════════════════════════
-
-class SarasChatbotEngine {
-  constructor() {
-    this.conversationHistory = [];
-    this.userProfile = { preferences: [] };
-    this.API_BASE = 'http://localhost:5001/api';
-    this.messageCount = 0;
-  }
-
-  // ─── Initialize conversation ───────────────────────────────────────────
-  initialize() {
-    this.conversationHistory = [];
-
-    this.addBotMessage(
-      "👋 Welcome to <b>Saras Restaurant</b>!<br><br>" +
-      "I'm your AI dining assistant.<br><br>" +
-      "🍽️ <b>Menu Recommendations</b><br>" +
-      "• Vegetarian Specials<br>" +
-      "• Non-Vegetarian Favorites<br>" +
-      "• Maharashtrian Traditional Dishes<br><br>" +
-      "💰 <b>Budget Dining Options</b><br>" +
-      "• Affordable meals<br>" +
-      "• Best value dishes<br>" +
-      "• Premium selections<br><br>" +
-      "🌶️ <b>Spice Level Guidance</b><br>" +
-      "• Mild<br>" +
-      "• Medium<br>" +
-      "• Spicy<br><br>" +
-      "📍 <b>Location & Opening Hours</b><br>" +
-      "• Directions<br>" +
-      "• Timings<br>" +
-      "• Reservation support<br><br>" +
-      "📞 <b>Contact & Booking Help</b><br>" +
-      "• WhatsApp<br>" +
-      "• Phone support<br>" +
-      "• Table reservations<br><br>" +
-      "How may I assist you today? 😊",
-      [
-        'View Full Menu',
-        'Veg Specials',
-        'Non-Veg Specials',
-        'Book Table',
-        'Chef Special',
-        'Contact Us'
-      ]
-    );
-  }
-
-  // ─── Conversation Helpers ─────────────────────────────────────────────
-  addUserMessage(text) {
-    this.conversationHistory.push({ role: 'user', content: text });
-    this.messageCount++;
-  }
-
-  addBotMessage(text, suggestedReplies = []) {
-    this.conversationHistory.push({
-      role: 'bot',
-      content: text,
-      suggestedReplies
-    });
-  }
-
-  // ─── Main Response Handler ────────────────────────────────────────────
-  async getResponse(userInput) {
-    this.addUserMessage(userInput);
-
-    const localResponse = this.getLocalMenuResponse(userInput);
-    if (localResponse) {
-      this.addBotMessage(localResponse.text, localResponse.suggestions);
-      return localResponse;
-    }
-
-    const aiResponse = await this.getAIResponse(userInput);
-    if (aiResponse) {
-      this.addBotMessage(aiResponse.text, aiResponse.suggestions);
-      return aiResponse;
-    }
-
-    this.addBotMessage(
-      "🤔 I couldn't quite understand that.<br><br>" +
-      "You can ask me about:<br><br>" +
-      "🍽️ <b>Menu Items</b><br>" +
-      "• Vegetarian dishes<br>" +
-      "• Non-vegetarian dishes<br>" +
-      "• Maharashtrian specials<br><br>" +
-      "💰 <b>Budget Recommendations</b><br>" +
-      "🌶️ <b>Spice Levels</b><br>" +
-      "📍 <b>Location & Hours</b><br>" +
-      "📅 <b>Booking Assistance</b><br><br>" +
-      "Try asking:<br>" +
-      "• Show veg dishes<br>" +
-      "• Best food under ₹200<br>" +
-      "• Book a table",
-      ['View Full Menu', 'Budget Meals', 'Book Table', 'Contact Us', 'Location']
-    );
-
-    return {
-      text: 'Unable to process',
-      suggestions: []
-    };
-  }
-
-  // ─── Local Menu Intelligence ──────────────────────────────────────────
-  getLocalMenuResponse(userInput) {
-    const input = userInput.toLowerCase().trim();
-
-    if (this.matchKeywords(input, ['menu', 'full menu', 'show menu', 'all dishes', 'view full menu'])) {
-      return this.getFullMenuResponse();
-    }
-
-    if (this.matchKeywords(input, [
-      'vegetarian', 'veg', 'veg menu', 'veg specials', 'paneer', 'vegetarian specials'
-    ])) {
-      return this.getVegetarianMenuResponse();
-    }
-
-    if (this.matchKeywords(input, [
-      'non veg', 'non-veg', 'chicken', 'mutton', 'fish', 'non-veg specials', 'biryani'
-    ])) {
-      return this.getNonVegMenuResponse();
-    }
-
-    if (this.matchKeywords(input, [
-      'maharashtrian', 'traditional', 'local special', 'maharashtra'
-    ])) {
-      return this.getMaharashtrianSpecialResponse();
-    }
-
-    if (this.matchKeywords(input, [
-      'budget', 'cheap', 'under', 'affordable', 'cheapest', 'budget meals', 'budget food'
-    ])) {
-      return this.getBudgetResponse(userInput);
-    }
-
-    if (this.matchKeywords(input, [
-      'best', 'premium', 'special', 'recommended', 'chef special', 'today special'
-    ])) {
-      return this.getPremiumResponse();
-    }
-
-    if (this.matchKeywords(input, [
-      'spicy', 'mild', 'kids', 'less spice', 'medium'
-    ])) {
-      return this.getSpiceFilterResponse(userInput);
-    }
-
-    if (this.matchKeywords(input, ['book', 'booking', 'reservation', 'table'])) {
-      return {
-        text:
-          "📅 <b>Book Your Table at Saras Restaurant</b><br><br>" +
-          "📞 Call: +91 8010476915<br>" +
-          "💬 WhatsApp booking available<br>" +
-          "📍 Gat No 76/2/A, Basaveshwar Nagar, Belati, Solapur - 413002<br><br>" +
-          "🕐 Open Daily: <b>8:00 AM - 10:00 PM</b>",
-        suggestions: ['Call Now', 'WhatsApp Booking', 'Location', 'View Full Menu']
-      };
-    }
-
-    if (this.matchKeywords(input, ['location', 'address', 'where', 'map'])) {
-      return {
-        text:
-          "📍 <b>Saras Restaurant Location</b><br><br>" +
-          "Gat No 76/2/A, Basaveshwar Nagar, Belati, Solapur - 413002<br><br>" +
-          "🕐 Open Daily: 8:00 AM - 10:00 PM<br>" +
-          "📞 Contact: +91 8010476915",
-        suggestions: ['Google Maps', 'Call Us', 'Book Table', 'WhatsApp Us']
-      };
-    }
-
-    if (this.matchKeywords(input, ['hours', 'timing', 'open', 'close'])) {
-      return {
-        text:
-          "🕐 <b>Saras Restaurant Timings</b><br><br>" +
-          "Open Daily:<br>8:00 AM - 10:00 PM<br><br>" +
-          "📞 +91 8010476915",
-        suggestions: ['Book Table', 'Contact Us', 'Location']
-      };
-    }
-
-    if (this.matchKeywords(input, ['contact', 'call', 'phone', 'whatsapp'])) {
-      return {
-        text:
-          "📞 <b>Contact Saras Restaurant</b><br><br>" +
-          "📱 Phone: +91 8010476915<br>" +
-          "💬 WhatsApp available<br>" +
-          "📍 Solapur Location",
-        suggestions: ['Call Now', 'WhatsApp Us', 'Book Table']
-      };
-    }
-
-    if (this.matchKeywords(input, ['combo', 'meal', 'offer'])) {
-      return this.getComboSuggestionsResponse();
-    }
-
-    if (this.matchKeywords(input, ['about', 'restaurant'])) {
-      return {
-        text:
-          "🏨 <b>About Saras Restaurant</b><br><br>" +
-          "Authentic vegetarian, non-vegetarian, and Maharashtrian cuisine.<br><br>" +
-          "✨ Luxury dining experience<br>" +
-          "👨‍👩‍👧‍👦 Family-friendly environment<br>" +
-          "📍 Solapur, Maharashtra",
-        suggestions: ['View Full Menu', 'Book Table', 'Contact Us']
-      };
-    }
-
-    const dishMatch = this.findDishByName(userInput);
-    if (dishMatch) {
-      return this.getDishDetailsResponse(dishMatch);
-    }
-
-    if (this.matchKeywords(input, ['help'])) {
-      this.initialize();
-      return this.conversationHistory[this.conversationHistory.length - 1];
-    }
-
-    return null;
-  }
-
-  // ─── Response Builders ────────────────────────────────────────────────
-  getFullMenuResponse() {
-    return {
-      text:
-        "📖 <b>Saras Restaurant Full Menu</b><br><br>" +
-        "🥬 Vegetarian Menu<br>" +
-        "🍗 Non-Vegetarian Menu<br>" +
-        "🌶️ Maharashtrian Specials<br>" +
-        "🥤 Beverages & Desserts<br><br>" +
-        "Ask for any category, budget, or dish details!",
-      suggestions: ['Veg Specials', 'Non-Veg Specials', 'Maharashtrian', 'Budget Meals']
-    };
-  }
-
-  getVegetarianMenuResponse() {
-    const dishes = SARAS_MENU.vegetarian.starters.slice(0, 5);
-    let text = "🥬 <b>Vegetarian Specials</b><br><br>";
-
-    dishes.forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    text += "<br>Ask for paneer dishes, rice, roti, or Maharashtrian specials.";
-
-    return {
-      text,
-      suggestions: ['Paneer Dishes', 'Veg Main Course', 'Maharashtrian', 'Budget Veg']
-    };
-  }
-
-  getNonVegMenuResponse() {
-    const dishes = SARAS_MENU.nonVegetarian.starters.slice(0, 5);
-    let text = "🍗 <b>Non-Vegetarian Specials</b><br><br>";
-
-    dishes.forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    text += "<br>Ask for biryani, chicken curry, or mutton dishes.";
-
-    return {
-      text,
-      suggestions: ['Chicken Dishes', 'Biryani', 'Mutton Specials', 'Budget Non-Veg']
-    };
-  }
-
-  getMaharashtrianSpecialResponse() {
-    const dishes = SARAS_MENU.vegetarian.maharashtrian;
-    let text = "🌶️ <b>Maharashtrian Specialties</b><br><br>";
-
-    dishes.forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    return {
-      text,
-      suggestions: ['Spicy Dishes', 'Traditional Meals', 'Budget Specials']
-    };
-  }
-
-  getBudgetResponse(userInput) {
-    const budgetMatch = userInput.match(/(\d+)/);
-    const budget = budgetMatch ? parseInt(budgetMatch[1]) : 150;
-
-    const dishes = this.getAllDishesFlat()
-      .filter(d => d.price <= budget)
-      .sort((a, b) => a.price - b.price)
-      .slice(0, 10);
-
-    let text = `💰 <b>Meals Under ₹${budget}</b><br><br>`;
-
-    dishes.forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    return {
-      text,
-      suggestions: ['Budget Veg', 'Budget Non-Veg', 'Best Value']
-    };
-  }
-
-  getPremiumResponse() {
-    const dishes = this.getAllDishesFlat()
-      .filter(d => d.isPremium)
-      .slice(0, 8);
-
-    let text = "👑 <b>Premium Recommended Dishes</b><br><br>";
-
-    dishes.forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    return {
-      text,
-      suggestions: ['Family Feast', 'Best Dishes']
-    };
-  }
-
-  getSpiceFilterResponse(userInput) {
-    const input = userInput.toLowerCase();
-    let dishes;
-    let heading;
-
-    if (input.includes('mild') || input.includes('kids')) {
-      dishes = this.getAllDishesFlat().filter(d => d.spiceLevel <= 1);
-      heading = "😌 <b>Mild Dishes</b><br><br>";
-    } else if (input.includes('medium')) {
-      dishes = this.getAllDishesFlat().filter(d => d.spiceLevel >= 2 && d.spiceLevel <= 3);
-      heading = "🌶️ <b>Medium Spice Dishes</b><br><br>";
-    } else {
-      dishes = this.getAllDishesFlat().filter(d => d.spiceLevel >= 4);
-      heading = "🔥 <b>Spicy Dishes</b><br><br>";
-    }
-
-    let text = heading;
-
-    dishes.slice(0, 8).forEach(d => {
-      text += `• <b>${d.name}</b> — ₹${d.price}<br>`;
-    });
-
-    return {
-      text,
-      suggestions: ['Mild', 'Medium', 'Spicy', 'Kids Food']
-    };
-  }
-
-  getDishDetailsResponse(dish) {
-    return {
-      text:
-        `🍽️ <b>${dish.name}</b><br><br>` +
-        `💰 Price: ₹${dish.price}<br>` +
-        `📂 Category: ${dish.category}<br>` +
-        `🌍 Cuisine: ${dish.cuisineType}<br>` +
-        `🌶️ Spice Level: ${dish.spiceLevel}/5<br><br>` +
-        `<b>Description:</b> ${dish.description}<br><br>` +
-        `<b>Ingredients:</b> ${dish.ingredients.join(', ')}<br><br>` +
-        `<b>Best Pairing:</b> ${dish.pairingWith.join(', ')}`,
-      suggestions: ['Similar Dishes', 'Budget Options', 'View Full Menu']
-    };
-  }
-
-  getComboSuggestionsResponse() {
-    return {
-      text:
-        "🎯 <b>Popular Saras Combos</b><br><br>" +
-        "🥬 Veg Combo: Paneer Butter Masala + Butter Roti + Jeera Rice<br><br>" +
-        "🌶️ Maharashtrian Combo: Veg Kolhapuri + Bhakri<br><br>" +
-        "🍗 Non-Veg Combo: Butter Chicken + Garlic Naan",
-      suggestions: ['Budget Combo', 'Family Combo', 'Premium Combo']
-    };
-  }
-
-  // ─── Helpers ──────────────────────────────────────────────────────────
-  matchKeywords(input, keywords) {
-    return keywords.some(keyword => input.includes(keyword.toLowerCase()));
-  }
-
-  getAllDishesFlat() {
-    return [
-      ...SARAS_MENU.vegetarian.starters,
-      ...SARAS_MENU.vegetarian.mainCourse,
-      ...SARAS_MENU.vegetarian.roti,
-      ...SARAS_MENU.vegetarian.rice,
-      ...SARAS_MENU.vegetarian.maharashtrian,
-      ...SARAS_MENU.nonVegetarian.starters,
-      ...SARAS_MENU.nonVegetarian.mainCourse,
-      ...SARAS_MENU.nonVegetarian.biryani,
-      ...SARAS_MENU.beveragesAndDesserts
-    ];
-  }
-
-  findDishByName(input) {
-    return this.getAllDishesFlat().find(dish =>
-      input.toLowerCase().includes(dish.name.toLowerCase())
-    ) || null;
-  }
-
-  // ─── AI Fallback ──────────────────────────────────────────────────────
-  async getAIResponse(userInput) {
-    try {
-      const response = await fetch(`${this.API_BASE}/chatbot/ai-response`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: userInput,
-          history: this.conversationHistory,
-          menuData: SARAS_MENU
-        })
-      });
-
-      if (!response.ok) return null;
-
-      const data = await response.json();
-
-      return {
-        text: data.response || 'Unable to process',
-        suggestions: data.suggestions || []
-      };
-    } catch {
-      return null;
-    }
-  }
-}
-
-// ─── Export ─────────────────────────────────────────────────────────────
-if (typeof window !== 'undefined') {
-  window.SarasChatbotEngine = SarasChatbotEngine;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = SarasChatbotEngine;
-}
-
