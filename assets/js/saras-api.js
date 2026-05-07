@@ -4,7 +4,7 @@
 //           + Newsletter subscription
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE  = 'http://localhost:5001/api';
+const API_BASE = (window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://localhost:5001') + '/api';
 const UPI_NAME  = 'Saras Restaurant';
 
 // ── Menu Items ────────────────────────────────────────────────

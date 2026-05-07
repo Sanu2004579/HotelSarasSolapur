@@ -9,6 +9,8 @@ function loadRazorpayScript() {
   });
 }
 
+const API_ORIGIN = (window.location.origin && window.location.origin != "null" ? window.location.origin : "http://localhost:5001");
+
 // ─── Main: Online Payment ────────────────────────────────────────────────
 async function payOnline(amount, items) {
   try {
@@ -19,8 +21,8 @@ async function payOnline(amount, items) {
       return;
     }
 
-    // ✅ STEP 1: Create Order (FIXED PORT)
-    const response = await fetch('http://localhost:5001/api/payment/create-order', {
+    // ✅ STEP 1: Create Order
+    const response = await fetch(`${API_ORIGIN}/api/payment/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount, items }),
@@ -45,7 +47,7 @@ async function payOnline(amount, items) {
       // ✅ STEP 3: VERIFY PAYMENT
       handler: async function (response) {
         try {
-          const verifyRes = await fetch('http://localhost:5001/api/payment/verify-payment', {
+          const verifyRes = await fetch(`${API_ORIGIN}/api/payment/verify-payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(response),
@@ -92,7 +94,7 @@ async function payOnline(amount, items) {
 // ─── COD Option ──────────────────────────────────────────────────────────
 async function payWithCOD(amount, items) {
   try {
-    const response = await fetch('http://localhost:5001/api/payment/cash-on-delivery', {
+    const response = await fetch(`${API_ORIGIN}/api/payment/cash-on-delivery`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount, items }),

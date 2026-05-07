@@ -1,6 +1,7 @@
 require("dotenv").config(); // load .env first — must be at top!
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const connectDB = require("./config/db");
 const paymentRoutes = require("./routes/paymentRoutes");
 const orderRoutes = require("./routes/orders");
@@ -14,8 +15,9 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors()); // allow frontend to talk to backend
+app.use(cors({ origin: true })); // enable CORS for cross-origin frontend requests
 app.use(express.json()); // parse JSON request bodies
+app.use(express.static(path.join(__dirname, ".."))); // serve frontend files from project root
 
 // Routes
 app.use("/api/payment", paymentRoutes);

@@ -1063,7 +1063,7 @@
     <div id="toast"></div>
 
     <script>
-      const API = "http://localhost:5001/api";
+      const API = (window.location.origin && window.location.origin !== "null" ? window.location.origin : "http://localhost:5001") + "/api";
       let token = localStorage.getItem("saras_token");
       let userToken = localStorage.getItem("saras_user_token");
       let currentUserName = localStorage.getItem("saras_user_name") || null;
