@@ -1,39 +1,99 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Reservation = require('../models/Reservation');
+const Reservation = require("../models/Reservation");
+const protect = require("../middleware/auth");
 
-// CREATE reservation
-router.post('/', async (req, res) => {
+// POST /api/reservations — Create reservation (public)
+router.post("/", async (req, res) => {
   try {
-    console.log("📥 DATA RECEIVED:", req.body);
+    const { name, phone, persons, date, time } = req.body;
+
+    if (!name || !phone || !persons || !date || !time) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required." });
+    }
 
     const newReservation = new Reservation({
-      name: req.body.name,
-      phone: req.body.phone,
-      persons: req.body.persons,
-      date: req.body.date,
-      time: req.body.time,
-      status: "pending"
+      name,
+      phone,
+      persons,
+      date,
+      time,
+      status: "pending",
     });
-
     const saved = await newReservation.save();
 
-    console.log("✅ SAVED TO DB:", saved);
-
-    res.status(201).json(saved);
+    res
+      .status(201)
+      .json({ success: true, message: "Reservation created.", data: saved });
   } catch (error) {
-    console.error("❌ ERROR:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Reservation create error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// GET all reservations
-router.get('/', async (req, res) => {
+// GET /api/reservations — All reservations (Admin)
+router.get("/", protect, async (req, res) => {
   try {
-    const reservations = await Reservation.find().sort({ createdAt: -1 });
-    res.json(reservations);
+    const { status, page = 1, limit = 100 } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+
+    const total = await Reservation.countDocuments(filter);
+    const reservations = await Reservation.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * Number(limit))
+      .limit(Number(limit));
+
+    res.json({ success: true, total, data: reservations });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PATCH /api/reservations/:id/status — Update status (Admin)
+router.patch("/:id/status", protect, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ["pending", "confirmed", "cancelled"];
+    if (!allowed.includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status." });
+    }
+    const reservation = await Reservation.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true },
+    );
+    if (!reservation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reservation not found." });
+    }
+    res.json({
+      success: true,
+      message: `Reservation ${status}.`,
+      data: reservation,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// DELETE /api/reservations/:id (Admin)
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const reservation = await Reservation.findByIdAndDelete(req.params.id);
+    if (!reservation) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reservation not found." });
+    }
+    res.json({ success: true, message: "Reservation deleted." });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
