@@ -9,7 +9,7 @@ function loadRazorpayScript() {
   });
 }
 
-const API_ORIGIN = (window.location.origin && window.location.origin != "null" ? window.location.origin : "http://localhost:5001");
+const API_ORIGIN = "http://localhost:5001"; // Change if backend is hosted elsewhere
 
 // ─── Main: Online Payment ────────────────────────────────────────────────
 async function payOnline(amount, items) {
