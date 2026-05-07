@@ -11,6 +11,8 @@ const reservationSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, 'Phone number is required'],
+      min: [10,'At least 1  required'],
+      max: [10, 'Max 10 numbmers'],
       trim: true,
     },
     persons: {
