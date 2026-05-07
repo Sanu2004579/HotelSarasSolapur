@@ -144,7 +144,7 @@ const sendNewsletterWelcome = async (email) => {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: '🎉 Welcome to Saras – Your 25% Discount Awaits!',
+    subject: '🎉 Welcome to Saras – Your 10% Discount Awaits!',
     html: newsletterWelcomeEmail(),
   });
 };
