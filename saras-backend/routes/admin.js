@@ -1,58 +1,88 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
-const protect = require('../middleware/auth');
+const jwt = require("jsonwebtoken");
+const Admin = require("../models/Admin");
+const protect = require("../middleware/auth");
 
 const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+  jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || "7d",
+  });
 
 // POST /api/admin/login
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required.' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and password are required." });
     }
 
     const admin = await Admin.findOne({ email });
     if (!admin || !(await admin.comparePassword(password))) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
     }
 
     const token = signToken(admin._id);
     res.json({
       success: true,
-      message: 'Login successful.',
+      message: "Login successful.",
       token,
       admin: { id: admin._id, email: admin.email },
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: "Server error." });
   }
 });
 
 // GET /api/admin/me
-router.get('/me', protect, (req, res) => {
+router.get("/me", protect, (req, res) => {
   res.json({ success: true, admin: req.admin });
 });
 
 // GET /api/admin/dashboard
-router.get('/dashboard', protect, async (req, res) => {
+router.get("/dashboard", protect, async (req, res) => {
   try {
-    const Reservation = require('../models/Reservation');
+    const Reservation = require("../models/Reservation");
+    const Order = require("../models/Order");
+    const Subscriber = require("../models/Subscriber");
+    const User = require("../models/User");
 
-    const reservations = await Reservation.find().sort({ createdAt: -1 });
+    const [
+      totalReservations,
+      pendingReservations,
+      confirmedReservations,
+      totalOrders,
+      totalSubscribers,
+      totalUsers,
+    ] = await Promise.all([
+      Reservation.countDocuments(),
+      Reservation.countDocuments({ status: "pending" }),
+      Reservation.countDocuments({ status: "confirmed" }),
+      Order.countDocuments(),
+      Subscriber.countDocuments({ isActive: true }),
+      User.countDocuments(),
+    ]);
 
     res.json({
       success: true,
-      reservations,
+      data: {
+        totalReservations,
+        pendingReservations,
+        confirmedReservations,
+        totalOrders,
+        totalSubscribers,
+        totalUsers,
+      },
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ success: false, message: "Server error." });
   }
 });
 
