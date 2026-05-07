@@ -33,6 +33,8 @@
   transition: 0.3s ease;
 }
 
+
+
 /* IMAGE */
 .menu-card img {
   width: 110px;
@@ -63,6 +65,12 @@
   font-size: 14px;
   color: #aaa;
   margin: 0;
+}
+
+.ingredients{
+  font-size: 13px;
+  color: #888;
+  margin-top: -5px;
 }
 
 /* HOVER EFFECT */
