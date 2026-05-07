@@ -115,6 +115,52 @@
         margin-top: 14px;
         display: none;
       }
+      .login-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 24px 0 18px;
+        color: var(--text-muted);
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .login-divider::before,
+      .login-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+      .user-portal-btn {
+        width: 100%;
+        background: transparent;
+        color: var(--gold);
+        border: 1px solid var(--gold);
+        border-radius: 8px;
+        padding: 13px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        letter-spacing: 1px;
+        transition: all 0.2s;
+      }
+      .user-portal-btn:hover {
+        background: var(--gold);
+        color: #111;
+      }
+      .user-session-bar {
+        background: #0a2a15;
+        border: 1px solid var(--success);
+        color: #6fcf97;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+        text-align: center;
+      }
 
       #admin-panel {
         display: none;
@@ -672,6 +718,10 @@
         <div class="login-error" id="login-error">
           Invalid email or password.
         </div>
+        <div class="login-divider">or</div>
+        <button class="user-portal-btn" onclick="openUserModal()">
+          👤 User Sign In / Register
+        </button>
       </div>
     </div>
 
@@ -953,6 +1003,9 @@
           </button>
         </div>
 
+        <!-- User session indicator -->
+        <div class="user-session-bar" id="user-session-bar"></div>
+
         <!-- LOGIN FORM -->
         <div class="modal-form active" id="modal-login-form">
           <input
@@ -1010,8 +1063,10 @@
     <div id="toast"></div>
 
     <script>
-      const API = "http://localhost:5000/api";
+      const API = "http://localhost:5001/api";
       let token = localStorage.getItem("saras_token");
+      let userToken = localStorage.getItem("saras_user_token");
+      let currentUserName = localStorage.getItem("saras_user_name") || null;
       let allReservations = [],
         allOrders = [],
         allUsers = [];
@@ -1030,6 +1085,11 @@
 
       // ── Auto-login on page load ────────────────────────────────
       window.onload = async () => {
+        // Restore user session state (show in modal if they return)
+        if (currentUserName) {
+          // User was previously signed in; session bar will be shown when modal opens
+        }
+
         if (token) {
           try {
             const res = await fetch(`${API}/admin/me`, {
@@ -1466,6 +1526,14 @@
 
       // ── User Sign In / Sign Up Modal ───────────────────────────
       function openUserModal() {
+        // Show logged-in session bar if user already signed in
+        const bar = document.getElementById("user-session-bar");
+        if (currentUserName) {
+          bar.innerHTML = `✅ Signed in as <strong>${esc(currentUserName)}</strong> &nbsp;·&nbsp; <a href="#" onclick="userLogout();return false;" style="color:var(--danger);text-decoration:none;">Sign Out</a>`;
+          bar.style.display = "block";
+        } else {
+          bar.style.display = "none";
+        }
         document.getElementById("user-auth-modal").classList.add("open");
       }
 
@@ -1534,8 +1602,20 @@
           });
           const data = await res.json();
           if (data.success) {
+            // Persist user session
+            userToken = data.token;
+            currentUserName = data.user.name;
+            localStorage.setItem("saras_user_token", data.token);
+            localStorage.setItem("saras_user_name", data.user.name);
+
             sucEl.textContent = `Welcome back, ${data.user.name}! ✅`;
             sucEl.style.display = "block";
+
+            // Update session bar immediately
+            const bar = document.getElementById("user-session-bar");
+            bar.innerHTML = `✅ Signed in as <strong>${esc(data.user.name)}</strong> &nbsp;·&nbsp; <a href="#" onclick="userLogout();return false;" style="color:var(--danger);text-decoration:none;">Sign Out</a>`;
+            bar.style.display = "block";
+
             setTimeout(() => closeUserModal(), 2000);
           } else {
             errEl.textContent = data.message || "Invalid credentials.";
@@ -1578,11 +1658,25 @@
           });
           const data = await res.json();
           if (data.success) {
-            sucEl.textContent = `Account created for ${data.user.name}! ✅`;
+            // Persist user session after signup
+            userToken = data.token;
+            currentUserName = data.user.name;
+            localStorage.setItem("saras_user_token", data.token);
+            localStorage.setItem("saras_user_name", data.user.name);
+
+            sucEl.textContent = `Account created for ${data.user.name}! You are now signed in. ✅`;
             sucEl.style.display = "block";
+
+            // Update session bar immediately
+            const bar = document.getElementById("user-session-bar");
+            bar.innerHTML = `✅ Signed in as <strong>${esc(data.user.name)}</strong> &nbsp;·&nbsp; <a href="#" onclick="userLogout();return false;" style="color:var(--danger);text-decoration:none;">Sign Out</a>`;
+            bar.style.display = "block";
+
+            // Refresh users list if admin is on users tab
             const usersTab = document.getElementById("tab-users");
             if (usersTab && usersTab.classList.contains("active")) loadUsers();
-            await loadStats();
+            if (token) await loadStats();
+
             setTimeout(() => closeUserModal(), 2200);
           } else {
             errEl.textContent = data.message || "Sign up failed.";
@@ -1592,6 +1686,17 @@
           errEl.textContent = "Cannot connect to server!";
           errEl.style.display = "block";
         }
+      }
+
+      function userLogout() {
+        userToken = null;
+        currentUserName = null;
+        localStorage.removeItem("saras_user_token");
+        localStorage.removeItem("saras_user_name");
+        const bar = document.getElementById("user-session-bar");
+        bar.style.display = "none";
+        closeUserModal();
+        showToast("Signed out successfully.");
       }
     </script>
   </body>
